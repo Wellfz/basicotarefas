@@ -1,15 +1,15 @@
 import tkinter as tk
-from tkinter import messagebox
-import ttkthemes as ttk
+from tkinter import messagebox, ttk
 from ttkthemes import ThemedTk
 
 import controller
 
 def atualizar_lista():
-    lista_tarefas.delete(0, tk.END)
+    for item in lista_tarefas.get_children():
+        lista_tarefas.delete(item)
     tarefas = controller.listar()
     for t in tarefas:
-        lista_tarefas.insert(tk.END, f"[{t[0]}] {t[1]} - {t[2]} | Status: {t[3]}")
+        lista_tarefas.insert("", "end", values=(t[0], t[1], t[2], t[3]), tags=(t[3],))
 
 def adicionar_tarefa():
     titulo = entry_titulo.get()
@@ -24,20 +24,20 @@ def adicionar_tarefa():
 
 def concluir_tarefa():
     try:
-        selecionado = lista_tarefas.get(lista_tarefas.curselection())
-        id = int(selecionado.split("]")[0][1:])
-        controller.concluir(id)
+        item = lista_tarefas.selection()[0]
+        id = lista_tarefas.item(item, "values")[0]
+        controller.concluir(int(id))
         atualizar_lista()
-    except (IndexError, tk.TclError):
+    except IndexError:
         messagebox.showwarning("Aviso", "Selecione uma tarefa para concluir!")
 
 def excluir_tarefa():
     try:
-        selecionado = lista_tarefas.get(lista_tarefas.curselection())
-        id = int(selecionado.split("]")[0][1:])
-        controller.deletar(id)
+        item = lista_tarefas.selection()[0]
+        id = lista_tarefas.item(item, "values")[0]
+        controller.deletar(int(id))
         atualizar_lista()
-    except (IndexError, tk.TclError):
+    except IndexError:
         messagebox.showwarning("Aviso", "Selecione uma tarefa para excluir!")
 
 # Inicializar BD
@@ -76,8 +76,26 @@ entry_descricao.grid(row=1, column=1, padx=10, pady=5)
 btn_add = tk.Button(frame_inputs, text="Adicionar", command=adicionar_tarefa, bg="#6c63ff", fg="#ffffff", activebackground="#8f85ff", font=FONT_BUTTON, relief="flat", bd=0)
 btn_add.grid(row=2, column=0, columnspan=2, pady=15)
 
-# Lista de tarefas
-lista_tarefas = tk.Listbox(frame_main, width=60, height=10, bg="#2c2f66", fg="#ffffff", selectbackground="#6c63ff", selectforeground="#ffffff", font=FONT_ENTRY, relief="flat", bd=0)
+# Treeview de tarefas
+style = ttk.Style()
+style.configure("Treeview", background="#2c2f66", foreground="white", rowheight=25, fieldbackground="#2c2f66")
+style.map("Treeview", background=[("selected", "#6c63ff")])
+
+lista_tarefas = ttk.Treeview(frame_main, columns=("ID", "Título", "Descrição", "Status"), show="headings", height=8)
+lista_tarefas.heading("ID", text="ID")
+lista_tarefas.heading("Título", text="Título")
+lista_tarefas.heading("Descrição", text="Descrição")
+lista_tarefas.heading("Status", text="Status")
+
+lista_tarefas.column("ID", width=40)
+lista_tarefas.column("Título", width=150)
+lista_tarefas.column("Descrição", width=200)
+lista_tarefas.column("Status", width=100)
+
+lista_tarefas.tag_configure("pendente", foreground="red")
+lista_tarefas.tag_configure("concluída", foreground="#00ff00")
+lista_tarefas.tag_configure("concluida", foreground="#00ff00")
+
 lista_tarefas.pack(pady=10)
 
 # Botões de ação
