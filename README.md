@@ -1,4 +1,4 @@
-📝 Sistema de Gerenciamento de Tarefas
+#📝 Sistema de Gerenciamento de Tarefas
 
 Um sistema simples de gerenciamento de tarefas feito em Python, utilizando Tkinter para a interface gráfica e SQLite como banco de dados.
 O projeto segue uma estrutura MVC (Model-View-Controller) para manter o código organizado e escalável.
