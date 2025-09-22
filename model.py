@@ -34,6 +34,13 @@ def listar_tarefas():
     conn.close()
     return tarefas
 
+def atualizar_tarefa(id, novo_titulo, nova_descricao):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE tarefas SET titulo = ?, descricao = ? WHERE id = ?", (novo_titulo, nova_descricao, id))
+    conn.commit()
+    conn.close()
+    
 def atualizar_tarefas(id, status):
     conn = conectar()
     cursor = conn.cursor()

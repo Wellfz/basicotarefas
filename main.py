@@ -8,8 +8,8 @@ def atualizar_lista():
     for item in lista_tarefas.get_children():
         lista_tarefas.delete(item)
     tarefas = controller.listar()
-    for t in tarefas:
-        lista_tarefas.insert("", "end", values=(t[0], t[1], t[2], t[3]), tags=(t[3],))
+    for tarefa in tarefas:
+        lista_tarefas.insert("", "end", values=(tarefa[0], tarefa[1], tarefa[2], tarefa[3]), tags=(tarefa[3],))
 
 def adicionar_tarefa():
     titulo = entry_titulo.get()
@@ -30,6 +30,45 @@ def concluir_tarefa():
         atualizar_lista()
     except IndexError:
         messagebox.showwarning("Aviso", "Selecione uma tarefa para concluir!")
+
+def editar_tarefa():
+    try:
+        item = lista_tarefas.selection()[0]
+        valores = lista_tarefas.item(item, "values")
+        id = int(valores[0])
+        titulo_atual = valores[1]
+        descricao_atual = valores[2]
+
+        # Janela de edição
+        edit_win = tk.Toplevel(root)
+        edit_win.title("Editar Tarefa")
+        edit_win.configure(bg="#23244a")
+
+        tk.Label(edit_win, text="Título:", bg="#23244a", fg="#ffffff", font=FONT_LABEL).grid(row=0, column=0, padx=10, pady=10)
+        entry_titulo_edit = tk.Entry(edit_win, width=30, bg="#2c2f66", fg="#ffffff", font=FONT_ENTRY, relief="flat")
+        entry_titulo_edit.grid(row=0, column=1, padx=10, pady=10)
+        entry_titulo_edit.insert(0, titulo_atual)
+
+        tk.Label(edit_win, text="Descrição:", bg="#23244a", fg="#ffffff", font=FONT_LABEL).grid(row=1, column=0, padx=10, pady=10)
+        entry_descricao_edit = tk.Entry(edit_win, width=30, bg="#2c2f66", fg="#ffffff", font=FONT_ENTRY, relief="flat")
+        entry_descricao_edit.grid(row=1, column=1, padx=10, pady=10)
+        entry_descricao_edit.insert(0, descricao_atual)
+
+        def salvar_edicao():
+            novo_titulo = entry_titulo_edit.get()
+            nova_descricao = entry_descricao_edit.get()
+            if not novo_titulo:
+                messagebox.showwarning("Aviso", "Título não pode estar vazio!")
+                return
+            controller.editar_tarefa(id, novo_titulo, nova_descricao)
+            atualizar_lista()
+            edit_win.destroy()
+
+        btn_salvar = tk.Button(edit_win, text="Salvar", command=salvar_edicao, bg="#6c63ff", fg="#ffffff", font=FONT_BUTTON, relief="flat", bd=0)
+        btn_salvar.grid(row=2, column=0, columnspan=2, pady=15)
+
+    except IndexError:
+        messagebox.showwarning("Aviso", "Selecione uma tarefa para editar!")
 
 def excluir_tarefa():
     try:
@@ -100,6 +139,7 @@ lista_tarefas.pack(pady=10)
 
 # Botões de ação
 frame_botoes = tk.Frame(frame_main, bg="#23244a")
+frame_botoes = tk.Frame(frame_main, bg="#23244a")
 frame_botoes.pack(pady=5)
 
 btn_concluir = tk.Button(frame_botoes, text="Concluir", command=concluir_tarefa, bg="#6c63ff", fg="#ffffff", activebackground="#8f85ff", font=FONT_BUTTON, relief="flat", bd=0)
@@ -111,6 +151,9 @@ btn_excluir.grid(row=0, column=1, padx=5)
 btn_atualizar = tk.Button(frame_botoes, text="Atualizar Lista", command=atualizar_lista, bg="#6c63ff", fg="#ffffff", activebackground="#8f85ff", font=FONT_BUTTON, relief="flat", bd=0)
 btn_atualizar.grid(row=0, column=2, padx=5)
 
+# Adicione o botão Editar
+btn_editar = tk.Button(frame_botoes, text="Editar", command=editar_tarefa, bg="#6c63ff", fg="#ffffff", activebackground="#8f85ff", font=FONT_BUTTON, relief="flat", bd=0)
+btn_editar.grid(row=0, column=3, padx=5)
 # Carregar lista ao iniciar
 atualizar_lista()
 
