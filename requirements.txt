@@ -1,0 +1,35 @@
+# Sistema de Tarefas - Requisitos
+
+## Dependências Python
+
+```
+tkinter>=8.6
+ttkthemes>=3.2.2
+```
+
+## Instalação
+
+1. Certifique-se de ter Python 3.7+ instalado
+2. Instale as dependências:
+   ```bash
+   pip install ttkthemes
+   ```
+
+## Execução
+
+```bash
+python main.py
+```
+
+## Funcionalidades
+
+- ✅ Adicionar tarefas
+- ✅ Editar tarefas
+- ✅ Marcar como concluída
+- ✅ Excluir tarefas
+- ✅ Listar todas as tarefas
+- ✅ Interface moderna e responsiva
+- ✅ Tratamento robusto de erros
+- ✅ Logging de operações
+- ✅ Validação de dados
+- ✅ Confirmação de exclusão
