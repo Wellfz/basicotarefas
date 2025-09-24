@@ -3,7 +3,6 @@ import logging
 from typing import List, Tuple, Optional
 from contextlib import contextmanager
 
-# Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ def conectar():
     conn = None
     try:
         conn = sqlite3.connect(DB_NAME)
-        conn.row_factory = sqlite3.Row  # Permite acesso por nome das colunas
+        conn.row_factory = sqlite3.Row 
         yield conn
     except sqlite3.Error as e:
         logger.error(f"Erro ao conectar com o banco: {e}")
@@ -32,7 +31,6 @@ def criar_tabela() -> None:
         with conectar() as conn:
             cursor = conn.cursor()
             
-            # Criar tabela se não existir
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS tarefas (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,11 +40,9 @@ def criar_tabela() -> None:
                 )
             """)
             
-            # Verificar se as colunas de timestamp existem
             cursor.execute("PRAGMA table_info(tarefas)")
             columns = [column[1] for column in cursor.fetchall()]
             
-            # Adicionar colunas de timestamp se não existirem
             if 'data_criacao' not in columns:
                 cursor.execute("ALTER TABLE tarefas ADD COLUMN data_criacao TIMESTAMP")
                 logger.info("Coluna data_criacao adicionada")
@@ -55,7 +51,6 @@ def criar_tabela() -> None:
                 cursor.execute("ALTER TABLE tarefas ADD COLUMN data_atualizacao TIMESTAMP")
                 logger.info("Coluna data_atualizacao adicionada")
             
-            # Atualizar registros existentes que não têm timestamps
             cursor.execute("UPDATE tarefas SET data_criacao = datetime('now') WHERE data_criacao IS NULL")
             cursor.execute("UPDATE tarefas SET data_atualizacao = datetime('now') WHERE data_atualizacao IS NULL")
             
@@ -91,7 +86,6 @@ def listar_tarefas() -> List[Tuple]:
         with conectar() as conn:
             cursor = conn.cursor()
             
-            # Verificar se a coluna data_criacao existe
             cursor.execute("PRAGMA table_info(tarefas)")
             columns = [column[1] for column in cursor.fetchall()]
             
@@ -116,7 +110,6 @@ def atualizar_tarefa(id: int, novo_titulo: str, nova_descricao: str = "") -> boo
         with conectar() as conn:
             cursor = conn.cursor()
             
-            # Verificar se a coluna data_atualizacao existe
             cursor.execute("PRAGMA table_info(tarefas)")
             columns = [column[1] for column in cursor.fetchall()]
             
@@ -153,7 +146,6 @@ def atualizar_status_tarefa(id: int, status: str) -> bool:
         with conectar() as conn:
             cursor = conn.cursor()
             
-            # Verificar se a coluna data_atualizacao existe
             cursor.execute("PRAGMA table_info(tarefas)")
             columns = [column[1] for column in cursor.fetchall()]
             
