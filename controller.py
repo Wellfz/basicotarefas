@@ -56,6 +56,17 @@ def editar_tarefa(id: int, novo_titulo: str, nova_descricao: str = "") -> bool:
         logger.error(f"Erro ao editar tarefa {id}: {e}")
         raise
 
+def atualizar_status(id: int, status: str) -> bool:
+    """Atualiza o status de uma tarefa."""
+    try:
+        return model.atualizar_status_tarefa(id, status)
+    except ValueError as e:
+        logger.warning(f"Status inválido ao atualizar tarefa {id}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Erro ao atualizar status da tarefa {id}: {e}")
+        raise
+
 def deletar(id: int) -> bool:
     """Deleta uma tarefa."""
     try:

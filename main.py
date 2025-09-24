@@ -215,13 +215,13 @@ class TaskManagerApp:
                 messagebox.showwarning("Aviso", "Tarefa não encontrada")
                 return
             
-            self._open_edit_window(task_id, tarefa[1], tarefa[2])
+            self._open_edit_window(task_id, tarefa[1], tarefa[2], tarefa[3])
             
         except Exception as e:
             logger.error(f"Erro ao buscar tarefa para edição: {e}")
             messagebox.showerror("Erro", config.MESSAGES['error_generic'])
 
-    def _open_edit_window(self, task_id: int, titulo_atual: str, descricao_atual: str):
+    def _open_edit_window(self, task_id: int, titulo_atual: str, descricao_atual: str, status_atual: str):
         """Abre janela de edição de tarefa."""
         edit_win = tk.Toplevel(self.root)
         edit_win.title("Editar Tarefa")
@@ -230,8 +230,11 @@ class TaskManagerApp:
         edit_win.grab_set()
 
         # Centralizar janela
-        edit_win.geometry("400x200")
+        edit_win.geometry("420x260")
         edit_win.resizable(False, False)
+        # Centralizar colunas do grid
+        edit_win.grid_columnconfigure(0, weight=1)
+        edit_win.grid_columnconfigure(1, weight=1)
 
         tk.Label(edit_win, text="Título:", bg=config.COLORS['background'], 
                 fg=config.COLORS['text'], font=config.FONTS['label']).grid(row=0, column=0, padx=10, pady=10)
@@ -249,17 +252,34 @@ class TaskManagerApp:
         entry_descricao_edit.grid(row=1, column=1, padx=10, pady=10)
         entry_descricao_edit.insert(0, descricao_atual)
 
+        # Campo de Status
+        tk.Label(edit_win, text="Status:", bg=config.COLORS['background'], 
+                fg=config.COLORS['text'], font=config.FONTS['label']).grid(row=2, column=0, padx=10, pady=10)
+        
+        status_values = ['pendente', 'concluida']
+        # normalizar status atual (pode vir com acento)
+        status_norm = 'concluida' if status_atual.lower().startswith('conclu') else 'pendente'
+        status_combo = ttk.Combobox(edit_win, values=status_values, state="readonly")
+        status_combo.grid(row=2, column=1, padx=10, pady=10, sticky="w")
+        status_combo.set(status_norm)
+
         def salvar_edicao():
             novo_titulo = entry_titulo_edit.get().strip()
             nova_descricao = entry_descricao_edit.get().strip()
+            novo_status = status_combo.get().strip()
             
             if not novo_titulo:
                 messagebox.showwarning("Aviso", config.MESSAGES['empty_title'])
                 return
             
             try:
-                success = controller.editar_tarefa(task_id, novo_titulo, nova_descricao)
-                if success:
+                success_main = controller.editar_tarefa(task_id, novo_titulo, nova_descricao)
+                # Atualizar status se mudou
+                success_status = True
+                if novo_status and novo_status != status_norm:
+                    success_status = controller.atualizar_status(task_id, novo_status)
+
+                if success_main and success_status:
                     self.atualizar_lista()
                     edit_win.destroy()
                     messagebox.showinfo("Sucesso", config.MESSAGES['task_updated'])
@@ -275,7 +295,7 @@ class TaskManagerApp:
         btn_salvar = tk.Button(edit_win, text="Salvar", command=salvar_edicao, 
                               bg=config.COLORS['accent'], fg=config.COLORS['text'], 
                               font=config.FONTS['button'], relief="flat", bd=0)
-        btn_salvar.grid(row=2, column=0, columnspan=2, pady=15)
+        btn_salvar.grid(row=3, column=0, columnspan=2, pady=(5,15))
 
     def excluir_tarefa(self):
         """Exclui uma tarefa após confirmação."""
